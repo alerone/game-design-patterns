@@ -1,0 +1,11 @@
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.ear
+/target/
+/bin/
+/build/
+/out/
+.gradle/
