@@ -62,6 +62,9 @@ public class Combat {
     private void hit(Fighter attacker, Fighter target, int damage, List<String> messages) {
         target.takeDamage(damage);
         messages.add("%s ataca a %s y le hace %d daño.".formatted(attacker.getName(), target.getName(), damage));
+        if (!target.isAlive()) {
+            messages.add(target.getName() + " queda fuera de combate.");
+        }
     }
 
     private int damageOf(Fighter attacker, Fighter target) {

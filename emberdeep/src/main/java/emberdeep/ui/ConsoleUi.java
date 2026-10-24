@@ -7,16 +7,15 @@ import java.util.stream.Collectors;
 
 import emberdeep.engine.character.Fighter;
 import emberdeep.engine.combat.Combat;
-import emberdeep.engine.combat.damage.DamageFormula;
-import emberdeep.engine.combat.damage.FlatFormula;
-import emberdeep.engine.combat.damage.ScaledFormula;
+import emberdeep.engine.item.Inventory;
+import emberdeep.engine.item.Item;
 import emberdeep.engine.session.GameSession;
 import lombok.RequiredArgsConstructor;
 
 /**
  * ConsoleUi
  */
-@RequiredArgsConstructor 
+@RequiredArgsConstructor
 public class ConsoleUi {
 
     private final Scanner in;
@@ -27,17 +26,19 @@ public class ConsoleUi {
         out.println(" [1] plana: ataque - defensa");
         out.println(" [2] escalada: ataque x 100 / (100 + defensa)");
         return ask(2);
-        }
+    }
 
     public void run(GameSession session) {
         Combat combat = session.getCombat();
         out.println("=== Emberdeep: planta 1 ===");
-        while(!combat.isOver()) {
+        while (!combat.isOver()) {
             out.println("--- Ronda " + session.round() + " ---");
             for (Fighter hero : session.getHeroes()) {
-                if (!hero.isAlive() || combat.isOver()) continue;
+                if (!hero.isAlive() || combat.isOver())
+                    continue;
                 out.println("Héroes: " + describe(session.getHeroes()));
                 out.println("Enemigos: " + describe(session.getEnemies()));
+                out.println(describeItems(session.getInventory()));
                 out.println("Turno de " + hero.getName() + ". [1] atacar");
                 ask(1);
                 Fighter target = askTarget(session.getEnemies());
@@ -49,12 +50,17 @@ public class ConsoleUi {
             }
         }
         out.println(combat.heroesWon() ? "Victoria" : "Derrota...");
-    }    
+    }
+
+    private String describeItems(Inventory inventory) {
+        if (inventory.items().isEmpty()) return "(ninguno)";
+        return "Objetos: " + inventory.items().stream().map(Item::name).collect(Collectors.joining(", "));
+    }
 
     private String describe(List<Fighter> group) {
         return group.stream()
-            .map(f -> f.getName() + " " + f.getHp() + "/" + f.getStats().maxHp())
-            .collect(Collectors.joining(", "));
+                .map(f -> f.getName() + " " + f.getHp() + "/" + f.getStats().maxHp())
+                .collect(Collectors.joining(", "));
     }
 
     private void print(List<String> messages) {
@@ -86,6 +92,6 @@ public class ConsoleUi {
             menu.append(" [").append(i + 1).append("] ").append(alive.get(i).getName());
         }
         out.println(menu);
-        return alive.get(ask(alive.size()) - 1); 
+        return alive.get(ask(alive.size()) - 1);
     }
 }
