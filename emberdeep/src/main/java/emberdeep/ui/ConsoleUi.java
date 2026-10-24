@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 import emberdeep.engine.character.Fighter;
 import emberdeep.engine.combat.Combat;
+import emberdeep.engine.combat.damage.DamageFormula;
+import emberdeep.engine.combat.damage.FlatFormula;
+import emberdeep.engine.combat.damage.ScaledFormula;
 import emberdeep.engine.session.GameSession;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +21,13 @@ public class ConsoleUi {
 
     private final Scanner in;
     private final PrintStream out;
+
+    public int askFormula() {
+        out.println("Fórmula de daño:");
+        out.println(" [1] plana: ataque - defensa");
+        out.println(" [2] escalada: ataque x 100 / (100 + defensa)");
+        return ask(2);
+        }
 
     public void run(GameSession session) {
         Combat combat = session.getCombat();
@@ -59,7 +69,7 @@ public class ConsoleUi {
 
             try {
                 int n = Integer.parseInt(line);
-                if (n <= 1 && n <= max) {
+                if (n >= 1 && n <= max) {
                     return n;
                 }
             } catch (NumberFormatException e) {
