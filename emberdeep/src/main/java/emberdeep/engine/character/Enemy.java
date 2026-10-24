@@ -5,5 +5,5 @@ import emberdeep.engine.combat.ai.EnemyAi;
 /**
  * Enemy
  */
-public record Enemy(String name, Stats stats, EnemyAi ai) {
+public record Enemy(String name, EnemyKind kind, Stats stats, EnemyAi ai) {
 }
