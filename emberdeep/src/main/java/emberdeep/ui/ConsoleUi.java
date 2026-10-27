@@ -10,6 +10,9 @@ import emberdeep.engine.combat.Combat;
 import emberdeep.engine.item.Inventory;
 import emberdeep.engine.item.Item;
 import emberdeep.engine.session.GameSession;
+import emberdeep.engine.world.map.GameMap;
+import emberdeep.engine.world.map.TileType;
+import emberdeep.engine.world.map.TileTypes;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -52,8 +55,50 @@ public class ConsoleUi {
         out.println(combat.heroesWon() ? "Victoria" : "Derrota...");
     }
 
+    public boolean explore(GameMap map, TileTypes types) {
+        while (true) {
+            out.println(map.render());
+            out.println("[w a s d] mover; [t] casillas; [q] salir");
+            out.print("> ");
+            out.flush();
+            String key = in.nextLine().trim();
+            switch (key) {
+                case "w" -> step(map, 0, -1);
+                case "a" -> step(map, -1, 0);
+                case "s" -> step(map, 0, 1);
+                case "d" -> step(map, 1, 0);
+                case "t" -> showTiles(map, types);
+                case "q" -> {
+                    return false;
+                }
+                default -> out.println("Técla inválida.");
+            }
+            ;
+
+            if (map.onStairs()) {
+                out.println("Bajas por la escalera.");
+                return true;
+            }
+        }
+    }
+
+    private void step(GameMap map, int dx, int dy) {
+        if (!map.move(dx, dy))
+            out.println("No puedes pasar.");
+    }
+
+    private void showTiles(GameMap map, TileTypes types) {
+        TileType corner = map.tileAt(0, 0);
+        TileType opposite = map.tileAt(map.width() - 1, map.height() - 1);
+
+        out.println("Casillas: " + map.width() * map.height() + 
+                ", TileType creados: " + types.createdCount());
+        out.println("Esquinas opuestas, mismo objeto: " + (corner == opposite));
+    }
+
     private String describeItems(Inventory inventory) {
-        if (inventory.items().isEmpty()) return "(ninguno)";
+        if (inventory.items().isEmpty())
+            return "(ninguno)";
         return "Objetos: " + inventory.items().stream().map(Item::name).collect(Collectors.joining(", "));
     }
 

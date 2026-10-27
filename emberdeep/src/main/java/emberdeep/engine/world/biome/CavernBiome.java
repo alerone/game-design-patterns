@@ -4,34 +4,36 @@ import java.util.Random;
 
 import emberdeep.engine.character.Enemy;
 import emberdeep.engine.character.EnemyKind;
+import emberdeep.engine.character.EnemyTemplate;
+import emberdeep.engine.character.Skill;
 import emberdeep.engine.character.Stats;
+import emberdeep.engine.character.TemplateRegistry;
 import emberdeep.engine.combat.ai.FirstAliveAi;
 import emberdeep.engine.combat.ai.LowestHpAi;
-import emberdeep.engine.combat.ai.RandomTargetAi;
 import emberdeep.engine.item.Item;
 import emberdeep.engine.item.ItemKind;
-import lombok.RequiredArgsConstructor;
 
 /**
  * CavernBiome
  */
-@RequiredArgsConstructor
 public class CavernBiome implements BiomeFactory {
 
-    private final Random random;
+    private final TemplateRegistry registry = new TemplateRegistry();
 
+    public CavernBiome(Random random) {
+        registry.register(new EnemyTemplate(EnemyKind.GOBLIN, "Goblin", 
+                    new Stats(14, 6, 1), new FirstAliveAi()).
+                addSkill(new Skill("Puñalada", 8)));
+        registry.register(new EnemyTemplate(EnemyKind.BAT, "Murciélago", 
+                    new Stats(10, 6, 0), new LowestHpAi()).
+                addSkill(new Skill("Chillido", 6)));
+        registry.register(new EnemyTemplate(EnemyKind.SPIDER, "Araña", 
+                    new Stats(16, 7, 2), new FirstAliveAi()).
+                addSkill(new Skill("Picadura", 9)));
+    }
     @Override
     public Enemy enemy(EnemyKind kind) {
-        return switch (kind) {
-            case GOBLIN -> new Enemy("Goblin", kind,
-                    new Stats(14, 6, 1), new FirstAliveAi());
-            case BAT -> new Enemy("Murciélago", kind,
-                    new Stats(10, 6, 0), new LowestHpAi());
-            case SPIDER -> new Enemy("Araña", kind,
-                    new Stats(16, 7, 2), new RandomTargetAi(random));
-            case SKELETON, ASH_RAT, ZOMBIE -> throw new IllegalArgumentException(
-                    kind + " no vive en la caverna");
-        };
+        return registry.get(kind).copy().toEnemy();
     }
 
     @Override

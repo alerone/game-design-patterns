@@ -18,6 +18,9 @@ import emberdeep.engine.world.Floor;
 import emberdeep.engine.world.biome.BiomeFactory;
 import emberdeep.engine.world.biome.CavernBiome;
 import emberdeep.engine.world.biome.CryptBiome;
+import emberdeep.engine.world.map.MapData;
+import emberdeep.engine.world.map.MapParser;
+import emberdeep.engine.world.map.TileTypes;
 import emberdeep.ui.ConsoleUi;
 
 /**
@@ -35,7 +38,6 @@ public class Main {
     private void play(String[] args) {
         int floorNumber = chooseFloor(args);
         ConsoleUi ui = new ConsoleUi(new Scanner(System.in), System.out);
-        DamageFormula formula = chooseFormula(ui, args);
         Random random = new Random(config.seed());
 
         BiomeFactory crypt = new CryptBiome(random);
@@ -45,14 +47,35 @@ public class Main {
         List<EnemyKind> cavernEnemies = List.of(EnemyKind.GOBLIN, EnemyKind.BAT, EnemyKind.SPIDER);
 
         Dungeon dungeon = new DungeonBuilder()
-            .floor().biome(crypt).enemies(cryptEnemies).done()
-            .floor().biome(cavern).enemies(cavernEnemies).done()
-            .floor().biome(crypt).enemies(cryptEnemies).done().build();
+            .floor().biome(crypt).enemies(cryptEnemies).map(MapData.floor(1)).done()
+            .floor().biome(cavern).enemies(cavernEnemies).map(MapData.floor(2)).done()
+            .floor().biome(crypt).enemies(cryptEnemies).map(MapData.floor(3)).done().build();
         Floor floor = dungeon.floors().get(floorNumber - 1);
 
+        if (args.length > 1 && args[1].equals("map")) {
+            explore(ui, dungeon, floorNumber);
+            return;
+        }
+
+        DamageFormula formula = chooseFormula(ui, args);
         GameSession session = new GameSession(heroes(), floor.biome(), floor.enemies(), formula);
 
         ui.run(session);
+    }
+
+    public void explore(ConsoleUi ui, Dungeon dungeon, int firstFloor) {
+        TileTypes types = new TileTypes();
+        MapParser parser = new MapParser(types);
+        int number = firstFloor;
+        while (true) {
+            Floor floor = dungeon.floors().get(number - 1);
+            boolean descend = ui.explore(parser.parse(floor.map()), types);
+
+            if (!descend || number == dungeon.floors().size()) 
+                return;
+
+            number++;
+        }
     }
 
 

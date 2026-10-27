@@ -18,6 +18,7 @@ public class DungeonBuilder {
     public class FloorBuilder {
         private BiomeFactory biome;
         private List<EnemyKind> enemies;
+        private String map = "";
 
         public FloorBuilder biome(BiomeFactory biome) {
             this.biome = biome;
@@ -29,8 +30,13 @@ public class DungeonBuilder {
             return this;
         }
 
+        public FloorBuilder map(String map) {
+            this.map = map;
+            return this;
+        }
+
         public DungeonBuilder done() {
-            floors.add(new Floor(biome, enemies));
+            floors.add(new Floor(biome, enemies, map));
             return DungeonBuilder.this;
         }
     }
@@ -39,8 +45,14 @@ public class DungeonBuilder {
         if (floors == null || floors.isEmpty())
             throw new IllegalStateException("Para crear una dungeon deben haber floors");
         for (int i = 0; i < floors.size(); i++) {
-            if (floors.get(i).enemies().isEmpty())
-                throw new IllegalStateException("La planta " + (i + 1) + " no contiene enemigos");
+             Floor floor = floors.get(i);
+            String label = "La planta " + (i + 1);
+            if (floor.biome() == null) 
+                throw new IllegalStateException(label + " no tiene bioma");
+            if (floor.enemies().isEmpty())
+                throw new IllegalStateException(label + " no contiene enemigos");
+            if (floor.map() == null || floor.map().isBlank()) 
+                throw new IllegalStateException(label + " no tiene mapa");
         }
 
         return new Dungeon(floors);

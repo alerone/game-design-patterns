@@ -8,7 +8,7 @@ import emberdeep.engine.world.biome.BiomeFactory;
 /**
  * Floor
  */
-public record Floor(BiomeFactory biome, List<EnemyKind> enemies) {
+public record Floor(BiomeFactory biome, List<EnemyKind> enemies, String map) {
     public Floor {
         enemies = List.copyOf(enemies);
     }
