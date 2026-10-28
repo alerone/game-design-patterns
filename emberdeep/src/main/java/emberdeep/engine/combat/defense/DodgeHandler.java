@@ -1,8 +1,9 @@
-package emberdeep.engine.combat.damage;
+package emberdeep.engine.combat.defense;
 
 import java.util.Random;
 
 import emberdeep.engine.character.Fighter;
+import emberdeep.engine.combat.damage.Damage;
 import lombok.RequiredArgsConstructor;
 
 /**

@@ -11,6 +11,7 @@ import emberdeep.engine.character.Stats;
 import emberdeep.engine.combat.damage.DamageFormula;
 import emberdeep.engine.combat.damage.FlatFormula;
 import emberdeep.engine.combat.damage.ScaledFormula;
+import emberdeep.engine.combat.defense.DamagePipeline;
 import emberdeep.engine.session.GameSession;
 import emberdeep.engine.world.Dungeon;
 import emberdeep.engine.world.DungeonBuilder;
@@ -58,7 +59,9 @@ public class Main {
         }
 
         DamageFormula formula = chooseFormula(ui, args);
-        GameSession session = new GameSession(heroes(), floor.biome(), floor.enemies(), formula);
+        DamagePipeline pipeline = new DamagePipeline(random, 0.0);
+        GameSession session = new GameSession(heroes(), floor.biome(), 
+                floor.enemies(), formula, pipeline);
 
         ui.run(session);
     }

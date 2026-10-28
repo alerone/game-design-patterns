@@ -1,15 +1,18 @@
-package emberdeep.engine.combat.damage;
+package emberdeep.engine.combat.defense;
 
 import emberdeep.engine.character.Fighter;
-import lombok.RequiredArgsConstructor;
+import emberdeep.engine.combat.damage.Damage;
 
 /**
  * ShieldHandler
  */
-@RequiredArgsConstructor 
 public class ShieldHandler implements DamageHandler{
 
     private final DamageHandler next;
+
+    public ShieldHandler(DamageHandler next) {
+        this.next = next;
+    }
 
     @Override
     public int handle(Fighter target, Damage damage) {
@@ -20,6 +23,4 @@ public class ShieldHandler implements DamageHandler{
 
         return next.handle(target, new Damage(left, damage.type()));
     }
-
-    
 }

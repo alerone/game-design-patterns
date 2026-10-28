@@ -45,11 +45,11 @@ public class ConsoleUi {
                 out.println("Turno de " + hero.getName() + ". [1] atacar");
                 ask(1);
                 Fighter target = askTarget(session.getEnemies());
-                printInfo(combat.heroAttack(hero, target));
+                print(combat.heroAttack(hero, target));
             }
 
             if (!combat.isOver()) {
-                printInfo(combat.enemyPhase());
+                print(combat.enemyPhase());
             }
         }
         out.println(combat.heroesWon() ? "Victoria" : "Derrota...");
@@ -109,10 +109,6 @@ public class ConsoleUi {
     }
 
     private void print(List<String> messages) {
-        messages.forEach(out::println);
-    }
-
-    private void printInfo(List<String> messages) {
         messages.forEach(s -> out.println("\u001B[36m" + s + "\u001B[0m"));
     }
 

@@ -17,6 +17,6 @@ public class ArmorBonus extends StatDecorator {
 
     @Override
     protected StatSource rewrap(StatSource newInner) {
-        return new ArmorBonus(inner, bonus);
+        return new ArmorBonus(newInner, bonus);
     }
 }

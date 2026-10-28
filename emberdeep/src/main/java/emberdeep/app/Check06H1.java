@@ -11,7 +11,7 @@ import emberdeep.engine.stats.WeaponBonus;
 /**
  * Check06
  */
-public class Check06 {
+public class Check06H1 {
 
     public static void main(String[] args) {
         StatSource hero = new BaseStats(new Stats(30, 8, 3));

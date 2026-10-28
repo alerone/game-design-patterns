@@ -3,6 +3,7 @@ package emberdeep.engine.character;
 import java.util.List;
 
 import emberdeep.engine.combat.ai.EnemyAi;
+import emberdeep.engine.combat.damage.DamageType;
 import emberdeep.engine.stats.BaseStats;
 import emberdeep.engine.stats.StatKind;
 import emberdeep.engine.stats.StatSource;
@@ -21,21 +22,23 @@ public class Fighter {
     private int shield;
     private StatSource gear;
     private StatSource stats;
+    private EnemyKind kind;
 
-    private Fighter(String name, StatSource gear, EnemyAi ai) {
+    private Fighter(String name, StatSource gear, EnemyAi ai, EnemyKind kind) {
         this.name = name;
         this.stats = gear;
         this.gear = gear;
         this.ai = ai;
         this.hp = gear.maxHp();
+        this.kind = kind;
     }
 
     public static Fighter ofHero(Hero hero, StatSource gear) {
-        return new Fighter(hero.name(), gear, null);
+        return new Fighter(hero.name(), gear, null, null);
     }
 
     public static Fighter ofEnemy(Enemy enemy) {
-        return new Fighter(enemy.name(), new BaseStats(enemy.stats()), enemy.ai());
+        return new Fighter(enemy.name(), new BaseStats(enemy.stats()), enemy.ai(), enemy.kind());
     }
 
     public void addBuff(StatKind stat, int bonus, int turns) {
@@ -49,6 +52,10 @@ public class Fighter {
     public void addShield(int amount) {
         shield += amount;
     }
+
+    public boolean resists(DamageType type) {
+        return kind != null && kind.resistances().contains(type);
+    }
     
     public int absorbShield(int damage) {
         int absorbed = Math.min(shield, damage);
@@ -57,6 +64,7 @@ public class Fighter {
     }
 
     public boolean isAlive() { return hp > 0; }
+
     public void takeDamage(int amount) {
         hp = Math.max(0, hp - amount);
     }

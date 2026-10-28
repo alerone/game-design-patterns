@@ -7,6 +7,7 @@ import emberdeep.engine.character.Fighter;
 import emberdeep.engine.character.Hero;
 import emberdeep.engine.combat.Combat;
 import emberdeep.engine.combat.damage.DamageFormula;
+import emberdeep.engine.combat.defense.DamagePipeline;
 import emberdeep.engine.item.Inventory;
 import emberdeep.engine.item.ItemKind;
 import emberdeep.engine.stats.ArmorBonus;
@@ -19,7 +20,7 @@ import lombok.Getter;
 /**
  * GameSession
  */
-@Getter 
+@Getter
 public class GameSession {
     private final List<Fighter> heroes;
     private final List<Fighter> enemies;
@@ -27,19 +28,19 @@ public class GameSession {
     private Inventory inventory;
 
     public GameSession(List<Hero> heroes, BiomeFactory biomeFactory,
-            List<EnemyKind> kinds, DamageFormula formula) {
+            List<EnemyKind> kinds, DamageFormula formula, DamagePipeline pipeline) {
         this.heroes = heroes.stream().map(h -> Fighter.ofHero(h, gearOf(h))).toList();
         this.enemies = kinds.stream()
-            .map(biomeFactory::enemy)
-            .map(Fighter::ofEnemy)
-            .toList();
-        this.combat = new Combat(this.heroes, this.enemies, formula);
+                .map(biomeFactory::enemy)
+                .map(Fighter::ofEnemy)
+                .toList();
+        this.combat = new Combat(this.heroes, this.enemies, formula, pipeline);
 
         this.inventory = new Inventory(List.of())
-                    .with(biomeFactory.item(ItemKind.HEALING))
-                    .with(biomeFactory.item(ItemKind.HEALING))
-                    .with(biomeFactory.item(ItemKind.BOMB));
-    } 
+                .with(biomeFactory.item(ItemKind.HEALING))
+                .with(biomeFactory.item(ItemKind.HEALING))
+                .with(biomeFactory.item(ItemKind.BOMB));
+    }
 
     public void replaceInventory(Inventory inventory) {
         this.inventory = inventory;
@@ -50,7 +51,9 @@ public class GameSession {
         StatSource gear = new WeaponBonus(base, 2);
         gear = new ArmorBonus(gear, 1);
         return gear;
-    } 
+    }
 
-    public int round() { return combat.round(); }
+    public int round() {
+        return combat.round();
+    }
 }
