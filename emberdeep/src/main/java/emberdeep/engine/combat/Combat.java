@@ -69,8 +69,7 @@ public class Combat {
 
     private void hit(Fighter attacker, Fighter target, int damage, List<String> messages) {
         Damage physical = new Damage(damage, DamageType.PHYSICAL);
-        int resultDamage = pipeline.apply(target, physical);
-        target.takeDamage(resultDamage);
+        int resultDamage = deal(target, physical); 
         if (resultDamage == 0) 
             messages.add("%s ataca a %s, pero no le hace daño.".formatted(attacker.getName(), target.getName()));
         else 
@@ -80,7 +79,13 @@ public class Combat {
         }
     }
 
-    private int damageOf(Fighter attacker, Fighter target) {
+    public int damageOf(Fighter attacker, Fighter target) {
         return formula.damage(attacker.getStats().attack(), target.getStats().defense());
+    }
+
+    public int deal(Fighter target, Damage damage) {
+        int dealt = pipeline.apply(target, damage);
+        target.takeDamage(dealt);
+        return dealt;
     }
 }

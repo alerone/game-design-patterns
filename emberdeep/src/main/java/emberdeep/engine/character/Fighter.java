@@ -41,6 +41,18 @@ public class Fighter {
         return new Fighter(enemy.name(), new BaseStats(enemy.stats()), enemy.ai(), enemy.kind());
     }
 
+    public void restore(int hp, int shield, StatSource stats) {
+        this.hp = hp;
+        this.shield = shield;
+        this.stats = stats;
+    }
+
+    public int heal(int amount) {
+        int healed = Math.min(amount, stats.maxHp() - hp);
+        hp += healed;
+        return healed;
+    }
+
     public void addBuff(StatKind stat, int bonus, int turns) {
         stats = new TempBuff(stats, stat, bonus, turns);
     }
