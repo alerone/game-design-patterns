@@ -4,7 +4,9 @@ import java.util.List;
 
 import emberdeep.engine.combat.ai.EnemyAi;
 import emberdeep.engine.stats.BaseStats;
+import emberdeep.engine.stats.StatKind;
 import emberdeep.engine.stats.StatSource;
+import emberdeep.engine.stats.TempBuff;
 import lombok.Getter;
 
 /**
@@ -25,7 +27,7 @@ public class Fighter {
         this.stats = gear;
         this.gear = gear;
         this.ai = ai;
-        this.hp = stats.maxHp();
+        this.hp = gear.maxHp();
     }
 
     public static Fighter ofHero(Hero hero, StatSource gear) {
