@@ -2,7 +2,9 @@ package emberdeep.engine.character;
 
 import java.util.List;
 
+import emberdeep.engine.combat.Combat;
 import emberdeep.engine.combat.ai.EnemyAi;
+import emberdeep.engine.combat.command.CombatCommand;
 import emberdeep.engine.combat.damage.DamageType;
 import emberdeep.engine.stats.BaseStats;
 import emberdeep.engine.stats.StatKind;
@@ -22,23 +24,25 @@ public class Fighter {
     private int shield;
     private StatSource gear;
     private StatSource stats;
+    private List<Skill> skills;
     private EnemyKind kind;
 
-    private Fighter(String name, StatSource gear, EnemyAi ai, EnemyKind kind) {
+    private Fighter(String name, StatSource gear, EnemyAi ai, EnemyKind kind, List<Skill> skills) {
         this.name = name;
         this.stats = gear;
         this.gear = gear;
         this.ai = ai;
+        this.skills = skills;
         this.hp = gear.maxHp();
         this.kind = kind;
     }
 
     public static Fighter ofHero(Hero hero, StatSource gear) {
-        return new Fighter(hero.name(), gear, null, null);
+        return new Fighter(hero.name(), gear, null, null, hero.skills());
     }
 
     public static Fighter ofEnemy(Enemy enemy) {
-        return new Fighter(enemy.name(), new BaseStats(enemy.stats()), enemy.ai(), enemy.kind());
+        return new Fighter(enemy.name(), new BaseStats(enemy.stats()), enemy.ai(), enemy.kind(), enemy.skills());
     }
 
     public void restore(int hp, int shield, StatSource stats) {
@@ -56,6 +60,8 @@ public class Fighter {
     public void addBuff(StatKind stat, int bonus, int turns) {
         stats = new TempBuff(stats, stat, bonus, turns);
     }
+
+    public List<Skill> skills() { return skills; }
 
     public void tickBuffs() {
         stats = stats.tick();
@@ -81,11 +87,11 @@ public class Fighter {
         hp = Math.max(0, hp - amount);
     }
 
-    public Fighter chooseTarget(List<Fighter> heroes) {
+    public CombatCommand act(Combat combat, List<Fighter> heroes) {
         if (ai == null) {
             throw new IllegalStateException(name + " no tiene IA: es un héroe");
         }
 
-        return ai.choose(this, heroes);
+        return ai.act(combat, this, heroes);
     }
 }

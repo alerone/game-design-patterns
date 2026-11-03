@@ -10,6 +10,7 @@ import emberdeep.engine.character.Stats;
 import emberdeep.engine.character.TemplateRegistry;
 import emberdeep.engine.combat.ai.FirstAliveAi;
 import emberdeep.engine.combat.ai.LowestHpAi;
+import emberdeep.engine.combat.damage.DamageType;
 import emberdeep.engine.item.Item;
 import emberdeep.engine.item.ItemKind;
 
@@ -23,13 +24,13 @@ public class CavernBiome implements BiomeFactory {
     public CavernBiome(Random random) {
         registry.register(new EnemyTemplate(EnemyKind.GOBLIN, "Goblin", 
                     new Stats(14, 6, 1), new FirstAliveAi()).
-                addSkill(new Skill("Puñalada", 8)));
+                addSkill(new Skill("Puñalada", 8, DamageType.PHYSICAL)));
         registry.register(new EnemyTemplate(EnemyKind.BAT, "Murciélago", 
                     new Stats(10, 6, 0), new LowestHpAi()).
-                addSkill(new Skill("Chillido", 6)));
+                addSkill(new Skill("Chillido", 6, DamageType.PHYSICAL)));
         registry.register(new EnemyTemplate(EnemyKind.SPIDER, "Araña", 
                     new Stats(16, 7, 2), new FirstAliveAi()).
-                addSkill(new Skill("Picadura", 9)));
+                addSkill(new Skill("Picadura", 9, DamageType.PHYSICAL)));
     }
     @Override
     public Enemy enemy(EnemyKind kind) {

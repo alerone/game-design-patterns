@@ -6,13 +6,21 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import emberdeep.engine.character.Fighter;
+import emberdeep.engine.character.Skill;
 import emberdeep.engine.combat.Combat;
+import emberdeep.engine.combat.command.Attack;
+import emberdeep.engine.combat.command.CombatCommand;
+import emberdeep.engine.combat.command.Defend;
+import emberdeep.engine.combat.command.UseItem;
+import emberdeep.engine.combat.command.UseSkill;
 import emberdeep.engine.item.Inventory;
 import emberdeep.engine.item.Item;
+import emberdeep.engine.item.ItemKind;
 import emberdeep.engine.session.GameSession;
 import emberdeep.engine.world.map.GameMap;
 import emberdeep.engine.world.map.TileType;
 import emberdeep.engine.world.map.TileTypes;
+import emberdeep.ui.input.InputSource;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -21,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConsoleUi {
 
-    private final Scanner in;
+    private final InputSource in;
     private final PrintStream out;
 
     public int askFormula() {
@@ -36,23 +44,92 @@ public class ConsoleUi {
         out.println("=== Emberdeep: planta 1 ===");
         while (!combat.isOver()) {
             out.println("--- Ronda " + session.round() + " ---");
-            for (Fighter hero : session.getHeroes()) {
-                if (!hero.isAlive() || combat.isOver())
-                    continue;
-                out.println("Héroes: " + describe(session.getHeroes()));
-                out.println("Enemigos: " + describe(session.getEnemies()));
-                out.println(describeItems(session.getInventory()));
-                out.println("Turno de " + hero.getName() + ". [1] atacar");
-                ask(1);
-                Fighter target = askTarget(session.getEnemies());
-                print(combat.heroAttack(hero, target));
+            List<Fighter> acting = session.getHeroes().stream()
+                .filter(Fighter::isAlive).toList();
+            int i = 0;
+            while(i < acting.size() && !combat.isOver()) {
+                boolean acted = heroTurn(session, acting.get(i));
+                i += acted ? 1 : -1;
             }
 
-            if (!combat.isOver()) {
+            if (!combat.isOver()) 
                 print(combat.enemyPhase());
-            }
         }
         out.println(combat.heroesWon() ? "Victoria" : "Derrota...");
+    }
+
+    private boolean heroTurn(GameSession session, Fighter hero) {
+        Combat combat = session.getCombat();
+        while (true) {
+            out.println("Héroes:    " + describe(session.getHeroes()));
+            out.println("Enemigos:  " + describe(session.getEnemies()));
+            out.println("Turno de:  " + hero.getName()
+                        + ". [1] atacar  [2] defender  [3] objeto" 
+                        + "  [4] habilidad  [u] deshacer");
+            String key = in.next();
+            if (key.equals("u")) {
+                if (combat.undo()) {
+                    out.println("Deshaces la última acción.");
+                    return false;
+                }
+                out.println("No hay nada que deshacer en esta ronda.");
+            }
+            CombatCommand command = switch(key) {
+                case "1" -> new Attack(combat, hero, askTarget("Objetivo", session.getEnemies()));
+                case "2" -> new Defend(hero);
+                case "3" -> chooseItem(session, hero);
+                case "4" -> chooseSkill(session, hero);
+                default -> {
+                    out.println("Tecla no válida");
+                    yield null;
+                }
+            };
+            if (command != null) {
+                print(combat.perform(command));
+                return true;
+            }
+        }
+    }
+
+    private CombatCommand chooseItem(GameSession session, Fighter hero) {
+        List<Item> items = session.getInventory().items();
+        if (items.isEmpty()) {
+            out.println("No te quedan objetos.");
+            return null;
+        }
+
+        Item item = items.get(choose("Objeto", items.stream().map(Item::name).toList()));
+        Fighter target = item.kind() == ItemKind.HEALING
+            ? askTarget("Aliado", session.getHeroes())
+            : askTarget("Objetivo", session.getEnemies());
+        return new UseItem(session, hero, item, target);
+    }
+
+    private CombatCommand chooseSkill(GameSession session, Fighter hero) {
+        List<Skill> skills = hero.skills();
+        if (skills.isEmpty()) {
+            out.println("No tienes habilidades.");
+            return null;
+        }
+        Skill skill = skills.get(choose("Habilidad", 
+                    skills.stream().map(Skill::name).toList()));
+        Fighter target = askTarget("Objetivo", session.getEnemies());
+        return new UseSkill(session.getCombat(), hero, skill, target);
+    }
+
+    private Fighter askTarget(String title, List<Fighter> group) {
+        List<Fighter> alive = group.stream().filter(Fighter::isAlive).toList();
+        return alive.get(choose(title, alive.stream().map(Fighter::getName).toList()));
+    }
+
+    private int choose(String title, List<String> labels) {
+        StringBuilder menu = new StringBuilder();
+        for (int i = 0; i < labels.size(); i++) {
+            menu.append("  [").append(i+1).append("]  ")
+                .append(labels.get(i));
+        }
+        out.println(menu);
+        return ask(labels.size()) - 1;
     }
 
     public boolean explore(GameMap map, TileTypes types) {
@@ -61,7 +138,7 @@ public class ConsoleUi {
             out.println("[w a s d] mover; [t] casillas; [q] salir");
             out.print("> ");
             out.flush();
-            String key = in.nextLine().trim();
+            String key = in.next();
             switch (key) {
                 case "w" -> step(map, 0, -1);
                 case "a" -> step(map, -1, 0);
@@ -116,7 +193,7 @@ public class ConsoleUi {
         while (true) {
             out.println("> ");
             out.flush();
-            String line = in.nextLine().trim();
+            String line = in.next();
 
             try {
                 int n = Integer.parseInt(line);

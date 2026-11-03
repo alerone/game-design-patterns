@@ -1,0 +1,107 @@
+=== Emberdeep: planta 1 ===
+--- Ronda 1 ---
+Héroes:    Aria 30/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 18/18, Rata de ceniza 8/8, Zombie 22/22
+Turno de:  Aria. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 3
+  [1]  Poción de la cripta  [2]  Poción de la cripta  [3]  Bomba de ceniza
+> 
+> 3
+  [1]  Esqueleto  [2]  Rata de ceniza  [3]  Zombie
+> 
+> 3
+[36mAria usa Bomba de ceniza sobre Zombie: inflingiendo 10 de daño de FUEGO.[0m
+Héroes:    Aria 30/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 18/18, Rata de ceniza 8/8, Zombie 12/22
+Turno de:  Borin. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> u
+Deshaces la última acción.
+Héroes:    Aria 30/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 18/18, Rata de ceniza 8/8, Zombie 22/22
+Turno de:  Aria. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 1
+  [1]  Esqueleto  [2]  Rata de ceniza  [3]  Zombie
+> 
+> 1
+[36mAria ataca a Esqueleto y le hace 8 de daño.[0m
+Héroes:    Aria 30/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 10/18, Rata de ceniza 8/8, Zombie 22/22
+Turno de:  Borin. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 4
+  [1]  Golpe poderoso  [2]  Llamarada
+> 
+> 2
+  [1]  Esqueleto  [2]  Rata de ceniza  [3]  Zombie
+> 
+> 2
+[36mBorin usa Llamarada sobre Rata de ceniza y le hace 6 de daño.[0m
+Héroes:    Aria 30/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 10/18, Rata de ceniza 2/8, Zombie 22/22
+Turno de:  Cael. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 2
+[36mCael se cubre: 5 de escudo y +2 de defensa este turno.[0m
+[36mEsqueleto ataca a Cael, pero no le hace daño.[0m
+[36mRata de ceniza ataca a Cael, pero no le hace daño.[0m
+[36mZombie ataca a Aria y le hace 1 de daño.[0m
+--- Ronda 2 ---
+Héroes:    Aria 29/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 10/18, Rata de ceniza 2/8, Zombie 22/22
+Turno de:  Aria. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 1
+  [1]  Esqueleto  [2]  Rata de ceniza  [3]  Zombie
+> 
+> 2
+[36mAria ataca a Rata de ceniza y le hace 10 de daño.[0m
+[36mRata de ceniza queda fuera de combate.[0m
+Héroes:    Aria 29/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 10/18, Rata de ceniza 0/8, Zombie 22/22
+Turno de:  Borin. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 1
+  [1]  Esqueleto  [2]  Zombie
+> 
+> 1
+[36mBorin ataca a Esqueleto y le hace 6 de daño.[0m
+Héroes:    Aria 29/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 4/18, Rata de ceniza 0/8, Zombie 22/22
+Turno de:  Cael. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 1
+  [1]  Esqueleto  [2]  Zombie
+> 
+> 1
+[36mCael ataca a Esqueleto y le hace 9 de daño.[0m
+[36mEsqueleto queda fuera de combate.[0m
+[36mZombie ataca a Aria y le hace 1 de daño.[0m
+--- Ronda 3 ---
+Héroes:    Aria 28/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 0/18, Rata de ceniza 0/8, Zombie 22/22
+Turno de:  Aria. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 2
+[36mAria se cubre: 5 de escudo y +2 de defensa este turno.[0m
+Héroes:    Aria 28/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 0/18, Rata de ceniza 0/8, Zombie 22/22
+Turno de:  Borin. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 1
+  [1]  Zombie
+> 
+> 1
+[36mBorin ataca a Zombie y le hace 7 de daño.[0m
+Héroes:    Aria 28/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 0/18, Rata de ceniza 0/8, Zombie 15/22
+Turno de:  Cael. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 1
+  [1]  Zombie
+> 
+> 1
+[36mCael ataca a Zombie y le hace 10 de daño.[0m
+[36mZombie usa Abrazo pútrido sobre Aria y le hace 1 de daño.[0m
+--- Ronda 4 ---
+Héroes:    Aria 27/30, Borin 40/40, Cael 24/24
+Enemigos:  Esqueleto 0/18, Rata de ceniza 0/8, Zombie 5/22
+Turno de:  Aria. [1] atacar  [2] defender  [3] objeto  [4] habilidad  [u] deshacer
+> 1
+  [1]  Zombie
+> 
+> 1
+[36mAria ataca a Zombie y le hace 9 de daño.[0m
+[36mZombie queda fuera de combate.[0m
+Victoria

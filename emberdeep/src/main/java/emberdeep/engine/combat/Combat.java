@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import emberdeep.engine.character.Fighter;
+import emberdeep.engine.combat.command.CombatCommand;
+import emberdeep.engine.combat.command.CommandHistory;
 import emberdeep.engine.combat.damage.Damage;
 import emberdeep.engine.combat.damage.DamageFormula;
-import emberdeep.engine.combat.damage.DamageType;
 import emberdeep.engine.combat.defense.DamagePipeline;
 
 /**
@@ -18,6 +19,7 @@ public class Combat {
     private final List<Fighter> enemies;
     private final DamageFormula formula;
     private final DamagePipeline pipeline;
+    private final CommandHistory history = new CommandHistory(); 
     private int round = 1;
 
     public Combat(List<Fighter> heroes, List<Fighter> enemies, DamageFormula formula,
@@ -44,12 +46,6 @@ public class Combat {
         return heroesLost() || heroesWon();
     }
 
-    public List<String> heroAttack(Fighter hero, Fighter target) {
-        List<String> messages = new ArrayList<>();
-        hit(hero, target, damageOf(hero, target), messages);
-        return messages;
-    }
-
     public List<String> enemyPhase() {
         List<String> messages = new ArrayList<>();
         for (Fighter enemy: enemies) {
@@ -58,26 +54,22 @@ public class Combat {
             }
             if (heroesLost()) break;
 
-            Fighter target = enemy.chooseTarget(heroes);
-            hit(enemy, target, damageOf(enemy, target), messages);
+            messages.addAll(enemy.act(this, heroes).execute());
         }
         round++;
         enemies.forEach(Fighter::tickBuffs);
         heroes.forEach(Fighter::tickBuffs);
+        history.clear();
         return messages;
     }
 
-    private void hit(Fighter attacker, Fighter target, int damage, List<String> messages) {
-        Damage physical = new Damage(damage, DamageType.PHYSICAL);
-        int resultDamage = deal(target, physical); 
-        if (resultDamage == 0) 
-            messages.add("%s ataca a %s, pero no le hace daño.".formatted(attacker.getName(), target.getName()));
-        else 
-            messages.add("%s ataca a %s y le hace %d daño.".formatted(attacker.getName(), target.getName(), resultDamage));
-        if (!target.isAlive()) {
-            messages.add(target.getName() + " queda fuera de combate.");
-        }
+    public List<String> perform(CombatCommand command) {
+        return history.run(command);
     }
+
+    public boolean undo() {
+        return history.undo();
+    } 
 
     public int damageOf(Fighter attacker, Fighter target) {
         return formula.damage(attacker.getStats().attack(), target.getStats().defense());

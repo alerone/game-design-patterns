@@ -26,12 +26,12 @@ public class UseItem implements CombatCommand {
     private final Item item;
     private final Combat combat;
 
-    public UseItem(GameSession session, Fighter target, Item item, Fighter user, Combat combat) {
+    public UseItem(GameSession session, Fighter user, Item item, Fighter target) {
         this.session = session;
         this.target = target;
         this.user = user;
         this.item = item;
-        this.combat = combat;
+        this.combat = session.getCombat();
     }
 
     @Override

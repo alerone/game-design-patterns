@@ -1,0 +1,28 @@
+# Ronda 1: Aria lanza la bomba al Zombi y Borin lo deshace
+3
+3
+3
+u
+# Aria ataca al Esqueleto; Borin lanza Llamarada a la Rata; Cael se cubre
+1
+1
+4
+2
+2
+2
+# Ronda 2: Aria remata a la Rata, Borin y Cael rematan al Esqueleto
+1
+2
+1
+1
+1
+1
+# Ronda 3: Aria se cubre; Borin y Cael hieren al Zombi sin matarlo
+2
+1
+1
+1
+1
+# Ronda 4: Aria remata al Zombi
+1
+1

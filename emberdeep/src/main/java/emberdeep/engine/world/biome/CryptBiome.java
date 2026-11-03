@@ -11,6 +11,8 @@ import emberdeep.engine.character.TemplateRegistry;
 import emberdeep.engine.combat.ai.FirstAliveAi;
 import emberdeep.engine.combat.ai.LowestHpAi;
 import emberdeep.engine.combat.ai.RandomTargetAi;
+import emberdeep.engine.combat.ai.SkillfulAi;
+import emberdeep.engine.combat.damage.DamageType;
 import emberdeep.engine.item.Item;
 import emberdeep.engine.item.ItemKind;
 
@@ -24,13 +26,13 @@ public class CryptBiome implements BiomeFactory {
     public CryptBiome(Random random) {
         registry.register(new EnemyTemplate(EnemyKind.SKELETON, "Esqueleto", 
                     new Stats(18, 7, 2), new RandomTargetAi(random)).
-                addSkill(new Skill("Golpe de hueso", 9)));
+                addSkill(new Skill("Golpe de hueso", 9, DamageType.PHYSICAL)));
         registry.register(new EnemyTemplate(EnemyKind.ASH_RAT, "Rata de ceniza", 
                     new Stats(8, 5, 0), new LowestHpAi()).
-                addSkill(new Skill("Mordisco sucio", 6)));
+                addSkill(new Skill("Mordisco sucio", 6, DamageType.PHYSICAL)));
         registry.register(new EnemyTemplate(EnemyKind.ZOMBIE, "Zombie", 
-                    new Stats(22, 5, 1), new FirstAliveAi()).
-                addSkill(new Skill("Abrazo pútrido", 7)));
+                    new Stats(22, 5, 1), new SkillfulAi(new FirstAliveAi())).
+                addSkill(new Skill("Abrazo pútrido", 7, DamageType.PHYSICAL)));
     }
 
     @Override

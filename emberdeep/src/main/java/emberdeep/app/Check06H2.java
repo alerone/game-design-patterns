@@ -22,7 +22,7 @@ public class Check06H2 {
 
     public static void main(String[] args) {
         Stats stats = new Stats(30, 8, 3);
-        Fighter aria = Fighter.ofHero(new Hero("Aria", stats),
+        Fighter aria = Fighter.ofHero(new Hero("Aria", stats, null),
                 new ArmorBonus(new BaseStats(stats), 1));
         aria.addShield(3);
         Damage hit = new Damage(10, DamageType.PHYSICAL);

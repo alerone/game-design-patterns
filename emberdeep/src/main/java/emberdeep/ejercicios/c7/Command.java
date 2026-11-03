@@ -6,4 +6,5 @@ package emberdeep.ejercicios.c7;
 public interface Command {
 
         void execute();
+        void undo();
 }
