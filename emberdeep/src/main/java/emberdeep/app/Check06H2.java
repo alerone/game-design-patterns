@@ -27,9 +27,9 @@ public class Check06H2 {
         aria.addShield(3);
         Damage hit = new Damage(10, DamageType.PHYSICAL);
         System.out.println(new DamagePipeline(new Random(1), 1.0).apply(aria, hit)
-                + " " + aria.getShield());
+                + " " + aria.shield());
         DamagePipeline plain = new DamagePipeline(new Random(1), 0.0);
-        System.out.println(plain.apply(aria, hit) + " " + aria.getShield());
+        System.out.println(plain.apply(aria, hit) + " " + aria.shield());
         Fighter rat = Fighter.ofEnemy(new Enemy("Rata de ceniza", EnemyKind.ASH_RAT,
                 new Stats(8, 5, 0), new FirstAliveAi(), List.of()));
         System.out.println(plain.apply(rat, new Damage(10, DamageType.FIRE)));

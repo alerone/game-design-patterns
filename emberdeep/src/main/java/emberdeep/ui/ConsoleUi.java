@@ -2,7 +2,6 @@ package emberdeep.ui;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import emberdeep.engine.character.Fighter;
@@ -13,9 +12,9 @@ import emberdeep.engine.combat.command.CombatCommand;
 import emberdeep.engine.combat.command.Defend;
 import emberdeep.engine.combat.command.UseItem;
 import emberdeep.engine.combat.command.UseSkill;
-import emberdeep.engine.item.Inventory;
 import emberdeep.engine.item.Item;
 import emberdeep.engine.item.ItemKind;
+import emberdeep.engine.save.SnapshotStore;
 import emberdeep.engine.session.GameSession;
 import emberdeep.engine.world.map.GameMap;
 import emberdeep.engine.world.map.TileType;
@@ -28,9 +27,12 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class ConsoleUi {
+    private enum Turn { ACTED, UNDONE, RESTORED }
 
     private final InputSource in;
     private final PrintStream out;
+    private final SnapshotStore checkpoints;
+    private int checkpointHero;
 
     public int askFormula() {
         out.println("Fórmula de daño:");
@@ -40,16 +42,22 @@ public class ConsoleUi {
     }
 
     public void run(GameSession session) {
-        Combat combat = session.getCombat();
+        Combat combat = session.combat();
         out.println("=== Emberdeep: planta 1 ===");
         while (!combat.isOver()) {
             out.println("--- Ronda " + session.round() + " ---");
-            List<Fighter> acting = session.getHeroes().stream()
-                .filter(Fighter::isAlive).toList();
+            List<Fighter> acting = aliveHeroes(session);
             int i = 0;
             while(i < acting.size() && !combat.isOver()) {
-                boolean acted = heroTurn(session, acting.get(i));
-                i += acted ? 1 : -1;
+                Turn turn = heroTurn(session, acting.get(i), i);
+                switch (turn) {
+                    case ACTED -> i++;
+                    case UNDONE -> i = Math.max(0, i - 1);
+                    case RESTORED -> {
+                        acting = aliveHeroes(session);
+                        i = checkpointHero;
+                    }
+                }
             }
 
             if (!combat.isOver()) 
@@ -58,24 +66,41 @@ public class ConsoleUi {
         out.println(combat.heroesWon() ? "Victoria" : "Derrota...");
     }
 
-    private boolean heroTurn(GameSession session, Fighter hero) {
-        Combat combat = session.getCombat();
+    private List<Fighter> aliveHeroes(GameSession session) {
+        return session.heroes().stream().filter(Fighter::isAlive).toList();
+    }
+
+    private Turn heroTurn(GameSession session, Fighter hero, int index) {
+        Combat combat = session.combat();
         while (true) {
-            out.println("Héroes:    " + describe(session.getHeroes()));
-            out.println("Enemigos:  " + describe(session.getEnemies()));
-            out.println("Turno de:  " + hero.getName()
+            printBlue("Héroes:    " + describe(session.heroes()));
+            printRed("Enemigos:  " + describe(session.enemies()));
+            out.println("Turno de:  " + hero.name()
                         + ". [1] atacar  [2] defender  [3] objeto" 
-                        + "  [4] habilidad  [u] deshacer");
+                        + "  [4] habilidad  [u] deshacer [c] guardar [r] volver");
             String key = in.next();
             if (key.equals("u")) {
                 if (combat.undo()) {
                     out.println("Deshaces la última acción.");
-                    return false;
+                    return Turn.UNDONE;
                 }
                 out.println("No hay nada que deshacer en esta ronda.");
+                continue;
+            }
+
+            if (key.equals("c")) {
+                saveCheckpoint(session, index);
+                continue;
+            }
+
+            if(key.equals("r")) {
+                if (loadCheckpoint(session)){
+                    return Turn.RESTORED;
+                }
+                continue;
             }
             CombatCommand command = switch(key) {
-                case "1" -> new Attack(combat, hero, askTarget("Objetivo", session.getEnemies()));
+                case "1" -> new Attack(combat, hero, askTarget("Objetivo", session.enemies()));
                 case "2" -> new Defend(hero);
                 case "3" -> chooseItem(session, hero);
                 case "4" -> chooseSkill(session, hero);
@@ -86,13 +111,30 @@ public class ConsoleUi {
             };
             if (command != null) {
                 print(combat.perform(command));
-                return true;
+                return Turn.ACTED;
             }
         }
     }
 
+    private void saveCheckpoint(GameSession session, int index) {
+        checkpoints.push(session.createSnapshot()); 
+        checkpointHero = index;
+        out.println("Punto de control guardado (" +
+                checkpoints.size() + ").");
+    }
+
+    private boolean loadCheckpoint(GameSession session) {
+        if (checkpoints.isEmpty()) {
+            out.println("No hay puntos de control.");
+            return false;
+        }
+        session.restore(checkpoints.last());
+        out.println("Vuelves al último punto de control (ronda " + session.round() + ").");
+        return true;
+    }
+
     private CombatCommand chooseItem(GameSession session, Fighter hero) {
-        List<Item> items = session.getInventory().items();
+        List<Item> items = session.inventory().items();
         if (items.isEmpty()) {
             out.println("No te quedan objetos.");
             return null;
@@ -100,8 +142,8 @@ public class ConsoleUi {
 
         Item item = items.get(choose("Objeto", items.stream().map(Item::name).toList()));
         Fighter target = item.kind() == ItemKind.HEALING
-            ? askTarget("Aliado", session.getHeroes())
-            : askTarget("Objetivo", session.getEnemies());
+            ? askTarget("Aliado", session.heroes())
+            : askTarget("Objetivo", session.enemies());
         return new UseItem(session, hero, item, target);
     }
 
@@ -113,13 +155,13 @@ public class ConsoleUi {
         }
         Skill skill = skills.get(choose("Habilidad", 
                     skills.stream().map(Skill::name).toList()));
-        Fighter target = askTarget("Objetivo", session.getEnemies());
-        return new UseSkill(session.getCombat(), hero, skill, target);
+        Fighter target = askTarget("Objetivo", session.enemies());
+        return new UseSkill(session.combat(), hero, skill, target);
     }
 
     private Fighter askTarget(String title, List<Fighter> group) {
         List<Fighter> alive = group.stream().filter(Fighter::isAlive).toList();
-        return alive.get(choose(title, alive.stream().map(Fighter::getName).toList()));
+        return alive.get(choose(title, alive.stream().map(Fighter::name).toList()));
     }
 
     private int choose(String title, List<String> labels) {
@@ -173,20 +215,22 @@ public class ConsoleUi {
         out.println("Esquinas opuestas, mismo objeto: " + (corner == opposite));
     }
 
-    private String describeItems(Inventory inventory) {
-        if (inventory.items().isEmpty())
-            return "(ninguno)";
-        return "Objetos: " + inventory.items().stream().map(Item::name).collect(Collectors.joining(", "));
-    }
-
     private String describe(List<Fighter> group) {
         return group.stream()
-                .map(f -> f.getName() + " " + f.getHp() + "/" + f.getStats().maxHp())
+                .map(f -> f.name() + " " + f.hp() + "/" + f.stats().maxHp())
                 .collect(Collectors.joining(", "));
     }
 
     private void print(List<String> messages) {
         messages.forEach(s -> out.println("\u001B[36m" + s + "\u001B[0m"));
+    }
+
+    private void printBlue(String s) {
+        out.println("\u001B[34m" + s + "\u001B[0m");
+    }
+
+    private void printRed(String s) {
+        out.println("\u001B[31m" + s + "\u001B[0m");
     }
 
     private int ask(int max) {
@@ -207,13 +251,4 @@ public class ConsoleUi {
         }
     }
 
-    private Fighter askTarget(List<Fighter> enemies) {
-        List<Fighter> alive = enemies.stream().filter(Fighter::isAlive).toList();
-        StringBuilder menu = new StringBuilder("Objetivo: ");
-        for (int i = 0; i < alive.size(); i++) {
-            menu.append(" [").append(i + 1).append("] ").append(alive.get(i).getName());
-        }
-        out.println(menu);
-        return alive.get(ask(alive.size()) - 1);
-    }
 }

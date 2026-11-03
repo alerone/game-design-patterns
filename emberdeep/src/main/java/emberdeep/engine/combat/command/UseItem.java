@@ -31,21 +31,21 @@ public class UseItem implements CombatCommand {
         this.target = target;
         this.user = user;
         this.item = item;
-        this.combat = session.getCombat();
+        this.combat = session.combat();
     }
 
     @Override
     public List<String> execute() {
-        inventoryBefore = session.getInventory();
-        hpBefore = target.getHp();
-        shieldBefore = target.getShield();
-        statsBefore = target.getStats();
+        inventoryBefore = session.inventory();
+        hpBefore = target.hp();
+        shieldBefore = target.shield();
+        statsBefore = target.stats();
         session.replaceInventory(inventoryBefore.without(item));
 
         List<String> messages = new ArrayList<>();
 
-        String itemUseMessage = user.getName() + " usa " + item.name()
-                    + " sobre " + target.getName();
+        String itemUseMessage = user.name() + " usa " + item.name()
+                    + " sobre " + target.name();
 
         switch (item.kind()) {
             case HEALING -> messages.add(itemUseMessage + ": recupera " 

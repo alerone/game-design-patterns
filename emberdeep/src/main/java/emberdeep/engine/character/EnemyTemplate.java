@@ -46,8 +46,8 @@ public class EnemyTemplate {
 
     public EnemyTemplate asElite() {
         EnemyTemplate elite = copy();
-        elite.setName("Élite " + name);
-        elite.setStats(new Stats(stats.maxHp() * 3 / 2, stats.attack() + 2, stats.defense() + 1));
+        elite.name("Élite " + name);
+        elite.stats(new Stats(stats.maxHp() * 3 / 2, stats.attack() + 2, stats.defense() + 1));
         elite.addSkill(new Skill("Furia", 12, DamageType.PHYSICAL));
         return elite;
     }

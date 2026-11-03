@@ -13,6 +13,6 @@ public class LowestHpAi implements EnemyAi{
     @Override
     public Fighter choose(Fighter self, List<Fighter> heroes) {
         return heroes.stream().filter(Fighter::isAlive)
-            .min(Comparator.comparingInt(Fighter::getHp)).orElseThrow();
+            .min(Comparator.comparingInt(Fighter::hp)).orElseThrow();
     }
 }

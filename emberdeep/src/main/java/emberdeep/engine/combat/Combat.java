@@ -34,6 +34,11 @@ public class Combat {
         return round;
     }
 
+    public void restoreRound(int newRound) {
+        if (newRound < 1) return;
+        this.round = newRound;
+    }
+
     public boolean heroesWon() {
         return enemies.stream().noneMatch(Fighter::isAlive);
     }
@@ -72,7 +77,7 @@ public class Combat {
     } 
 
     public int damageOf(Fighter attacker, Fighter target) {
-        return formula.damage(attacker.getStats().attack(), target.getStats().defense());
+        return formula.damage(attacker.stats().attack(), target.stats().defense());
     }
 
     public int deal(Fighter target, Damage damage) {

@@ -17,6 +17,7 @@ import emberdeep.engine.combat.damage.DamageType;
 import emberdeep.engine.combat.damage.FlatFormula;
 import emberdeep.engine.combat.damage.ScaledFormula;
 import emberdeep.engine.combat.defense.DamagePipeline;
+import emberdeep.engine.save.SnapshotStore;
 import emberdeep.engine.session.GameSession;
 import emberdeep.engine.world.Dungeon;
 import emberdeep.engine.world.DungeonBuilder;
@@ -45,6 +46,7 @@ public class Main {
         new Main(config).play(args);
     }
     private void play(String[] args) throws IOException {
+        SnapshotStore store = new SnapshotStore();
         String script = scriptOf(args);
         String[] options = optionsOf(args);
         int floorNumber = chooseFloor(options);
@@ -52,7 +54,7 @@ public class Main {
         InputSource input = script == null
             ? new ConsoleInput(new Scanner(System.in), System.out)
             : new ScriptInput(Path.of(script), System.out);
-        ConsoleUi ui = new ConsoleUi(input, System.out);
+        ConsoleUi ui = new ConsoleUi(input, System.out, store);
         Random random = new Random(config.seed());
 
 
@@ -75,7 +77,7 @@ public class Main {
 
         DamageFormula formula = chooseFormula(ui, options, script != null);
         DamagePipeline pipeline = new DamagePipeline(random, 0.0);
-        GameSession session = new GameSession(heroes(), floor.biome(), 
+        GameSession session = new GameSession(1, 0, 0, heroes(), floor.biome(), 
                 floor.enemies(), formula, pipeline);
 
         ui.run(session);

@@ -13,7 +13,7 @@ public class ArmorHandler implements DamageHandler {
 
     @Override
     public int handle(Fighter target, Damage damage) {
-        int reduced = Math.max(1, damage.amount() - target.getStats().armor());
+        int reduced = Math.max(1, damage.amount() - target.stats().armor());
         return next.handle(target, new Damage(reduced, damage.type()));
     }
 }

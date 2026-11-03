@@ -11,10 +11,8 @@ import emberdeep.engine.character.Skill;
 import emberdeep.engine.character.Stats;
 import emberdeep.engine.combat.Combat;
 import emberdeep.engine.combat.command.Attack;
-import emberdeep.engine.combat.command.CombatCommand;
 import emberdeep.engine.combat.command.Defend;
 import emberdeep.engine.combat.command.UseItem;
-import emberdeep.engine.combat.command.UseSkill;
 import emberdeep.engine.combat.damage.DamageType;
 import emberdeep.engine.combat.damage.FlatFormula;
 import emberdeep.engine.combat.defense.DamagePipeline;
@@ -28,15 +26,14 @@ public class Check07H2 {
         Skill flare = new Skill("Llamarada", 10, DamageType.FIRE);
         Hero aria = new HeroBuilder().name("Aria")
                 .stats(new Stats(30, 8, 3)).skill(flare).build();
-        GameSession session = new GameSession(List.of(aria),
+        GameSession session = new GameSession(1,0,0, List.of(aria),
                 new CryptBiome(random),
                 List.of(EnemyKind.SKELETON, EnemyKind.ASH_RAT),
                 new FlatFormula(), new DamagePipeline(random, 0.0));
-        Combat combat = session.getCombat();
-        Fighter hero = session.getHeroes().get(0);
-        Fighter skeleton = session.getEnemies().get(0);
-        Fighter rat = session.getEnemies().get(1);
-        Item bomb = session.getInventory().items().get(2);
+        Combat combat = session.combat();
+        Fighter hero = session.heroes().get(0);
+        Fighter skeleton = session.enemies().get(0);
+        Item bomb = session.inventory().items().get(2);
         combat.perform(new Attack(combat, hero, skeleton));
         combat.perform(new Defend(hero));
         combat.perform(new UseItem(session, hero, bomb, skeleton));
@@ -47,7 +44,7 @@ public class Check07H2 {
         }
         System.out.println(combat.undo());
         hero.takeDamage(16);
-        combat.perform(new UseItem(session, hero, session.getInventory().items().get(0), hero));
+        combat.perform(new UseItem(session, hero, session.inventory().items().get(0), hero));
         show(hero, session);
         combat.undo();
         show(hero, session);
@@ -57,14 +54,14 @@ public class Check07H2 {
     }
 
     private static void show(Fighter hero, GameSession session) {
-        System.out.println(hero.getHp() + " "
-                + session.getInventory().items().size());
+        System.out.println(hero.hp() + " "
+                + session.inventory().items().size());
     }
 
     private static void show(Fighter skeleton, Fighter hero,
             GameSession s) {
-        System.out.println(skeleton.getHp() + " " + hero.getShield() + " "
-                + s.getInventory().items().size() + " "
-                + hero.getStats().defense());
+        System.out.println(skeleton.hp() + " " + hero.shield() + " "
+                + s.inventory().items().size() + " "
+                + hero.stats().defense());
     }
 }

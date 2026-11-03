@@ -28,15 +28,15 @@ public class Check07H1 {
         Skill flare = new Skill("Llamarada", 10, DamageType.FIRE);
         Hero aria = new HeroBuilder().name("Aria")
                 .stats(new Stats(30, 8, 3)).skill(flare).build();
-        GameSession session = new GameSession(List.of(aria),
+        GameSession session = new GameSession(1,0,0, List.of(aria),
                 new CryptBiome(random),
                 List.of(EnemyKind.SKELETON, EnemyKind.ASH_RAT),
                 new FlatFormula(), new DamagePipeline(random, 0.0));
-        Combat combat = session.getCombat();
-        Fighter hero = session.getHeroes().get(0);
-        Fighter skeleton = session.getEnemies().get(0);
-        Fighter rat = session.getEnemies().get(1);
-        Item bomb = session.getInventory().items().get(2);
+        Combat combat = session.combat();
+        Fighter hero = session.heroes().get(0);
+        Fighter skeleton = session.enemies().get(0);
+        Fighter rat = session.enemies().get(1);
+        Item bomb = session.inventory().items().get(2);
         List<CombatCommand> commands = List.of(
                 new Attack(combat, hero, skeleton),
                 new UseSkill(combat, hero, flare, rat),
@@ -46,6 +46,6 @@ public class Check07H1 {
             command.execute().forEach(System.out::println);
         }
         System.out.println(
-                hero.getShield() + " " + hero.getStats().defense() + " " + session.getInventory().items().size());
+                hero.shield() + " " + hero.stats().defense() + " " + session.inventory().items().size());
     }
 }

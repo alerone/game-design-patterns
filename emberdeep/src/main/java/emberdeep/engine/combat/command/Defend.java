@@ -21,17 +21,17 @@ public class Defend implements CombatCommand{
 
     @Override
     public List<String> execute() {
-        shieldBefore = user.getShield();
-        statsBefore = user.getStats();
+        shieldBefore = user.shield();
+        statsBefore = user.stats();
         user.addShield(SHIELD);
         user.addBuff(StatKind.DEFENSE, DEFENSE_BONUS, 1);
-        return List.of(user.getName() + " se cubre: " + SHIELD 
+        return List.of(user.name() + " se cubre: " + SHIELD 
                 + " de escudo y +" + DEFENSE_BONUS
                 + " de defensa este turno.");
     }
 
     @Override
     public void undo() {
-        user.restore(user.getHp(), shieldBefore, statsBefore);
+        user.restore(user.hp(), shieldBefore, statsBefore);
     }
 }
