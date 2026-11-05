@@ -12,6 +12,7 @@ import emberdeep.engine.combat.command.CombatCommand;
 import emberdeep.engine.combat.command.Defend;
 import emberdeep.engine.combat.command.UseItem;
 import emberdeep.engine.combat.command.UseSkill;
+import emberdeep.engine.item.Inventory;
 import emberdeep.engine.item.Item;
 import emberdeep.engine.item.ItemKind;
 import emberdeep.engine.save.SnapshotStore;
@@ -20,13 +21,14 @@ import emberdeep.engine.world.map.GameMap;
 import emberdeep.engine.world.map.TileType;
 import emberdeep.engine.world.map.TileTypes;
 import emberdeep.ui.input.InputSource;
+import emberdeep.utils.TermColors;
 import lombok.RequiredArgsConstructor;
 
 /**
  * ConsoleUi
  */
 @RequiredArgsConstructor
-public class ConsoleUi {
+public class ConsoleMenu {
     private enum Turn { ACTED, UNDONE, RESTORED }
 
     private final InputSource in;
@@ -59,11 +61,9 @@ public class ConsoleUi {
                     }
                 }
             }
-
             if (!combat.isOver()) 
-                print(combat.enemyPhase());
+                combat.enemyPhase();
         }
-        out.println(combat.heroesWon() ? "Victoria" : "Derrota...");
     }
 
     private List<Fighter> aliveHeroes(GameSession session) {
@@ -75,6 +75,7 @@ public class ConsoleUi {
         while (true) {
             printBlue("Héroes:    " + describe(session.heroes()));
             printRed("Enemigos:  " + describe(session.enemies()));
+            printGreen("Objetos: " + describeItems(session.inventory()));
             out.println("Turno de:  " + hero.name()
                         + ". [1] atacar  [2] defender  [3] objeto" 
                         + "  [4] habilidad  [u] deshacer [c] guardar [r] volver");
@@ -101,7 +102,7 @@ public class ConsoleUi {
             }
             CombatCommand command = switch(key) {
                 case "1" -> new Attack(combat, hero, askTarget("Objetivo", session.enemies()));
-                case "2" -> new Defend(hero);
+                case "2" -> new Defend(combat, hero);
                 case "3" -> chooseItem(session, hero);
                 case "4" -> chooseSkill(session, hero);
                 default -> {
@@ -110,7 +111,7 @@ public class ConsoleUi {
                 }
             };
             if (command != null) {
-                print(combat.perform(command));
+                combat.perform(command);
                 return Turn.ACTED;
             }
         }
@@ -220,17 +221,24 @@ public class ConsoleUi {
                 .map(f -> f.name() + " " + f.hp() + "/" + f.stats().maxHp())
                 .collect(Collectors.joining(", "));
     }
-
-    private void print(List<String> messages) {
-        messages.forEach(s -> out.println("\u001B[36m" + s + "\u001B[0m"));
+    
+    private String describeItems(Inventory inventory) {
+        if (inventory.items().isEmpty()) return "(ninguno)";
+        return inventory.items().stream()
+            .map(Item::name)
+            .collect(Collectors.joining(", "));
     }
 
     private void printBlue(String s) {
-        out.println("\u001B[34m" + s + "\u001B[0m");
+        out.println(TermColors.toBlue(s));
     }
 
     private void printRed(String s) {
-        out.println("\u001B[31m" + s + "\u001B[0m");
+        out.println(TermColors.toRed(s));
+    }
+
+    private void printGreen(String s) {
+        out.println(TermColors.toGreen(s));
     }
 
     private int ask(int max) {

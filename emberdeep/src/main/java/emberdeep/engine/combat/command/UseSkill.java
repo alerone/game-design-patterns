@@ -30,21 +30,12 @@ public class UseSkill implements CombatCommand{
     }
 
     @Override
-    public List<String> execute() {
+    public void execute() {
         hpBefore = target.hp();
         shieldBefore = target.shield();
         statsBefore = target.stats();
         Damage damage = new Damage(skill.power(), skill.type());
-        int dealt = combat.deal(target, damage);
-
-        List<String> messages = new ArrayList<>();
-
-        String common = "%s usa %s sobre %s".formatted(user.name(), skill.name(), target.name());
-        
-        messages.add(dealt > 0 ? common + " y le hace " + dealt + " de daño." : common + ", pero no le hace daño");
-        if (target.hp() == 0)
-            messages.add(target.name() + " queda fuera de combate.");
-        return messages;
+        combat.deal(user, target, damage);
     }
 
     @Override

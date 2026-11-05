@@ -31,20 +31,10 @@ public class Attack implements CombatCommand {
     }
 
     @Override
-    public List<String> execute() {
+    public void execute() {
         int raw = combat.damageOf(attacker, target);
-        int dealt = combat.deal(target, 
+        combat.deal(attacker, target, 
                 new Damage(raw, DamageType.PHYSICAL));
-        String who = attacker.name() + " ataca a " + target.name();
-        List<String> messages = new ArrayList<>();
-        messages.add(dealt == 0 
-                ? who + ", pero no le hace daño."
-                : who + " y le hace " + dealt + " de daño.");
-        if (!target.isAlive()) {
-            messages.add(target.name() + " queda fuera de combate.");
-        }
-
-        return messages;
     }
 
     @Override

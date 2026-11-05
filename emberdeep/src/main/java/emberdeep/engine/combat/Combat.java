@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import emberdeep.engine.character.Fighter;
+import emberdeep.engine.character.Hero;
 import emberdeep.engine.combat.command.CombatCommand;
 import emberdeep.engine.combat.command.CommandHistory;
 import emberdeep.engine.combat.damage.Damage;
 import emberdeep.engine.combat.damage.DamageFormula;
 import emberdeep.engine.combat.defense.DamagePipeline;
+import emberdeep.engine.event.EventBus;
+import emberdeep.engine.event.GameEvent;
 
 /**
  * Combat
@@ -19,15 +22,18 @@ public class Combat {
     private final List<Fighter> enemies;
     private final DamageFormula formula;
     private final DamagePipeline pipeline;
-    private final CommandHistory history = new CommandHistory(); 
+    private final CommandHistory history = new CommandHistory();
+    private final EventBus eventBus;
+    private boolean ended;
     private int round = 1;
 
     public Combat(List<Fighter> heroes, List<Fighter> enemies, DamageFormula formula,
-            DamagePipeline pipeline) {
+            DamagePipeline pipeline, EventBus bus) {
         this.heroes = heroes;
         this.enemies = enemies;
         this.formula = formula;
         this.pipeline = pipeline;
+        this.eventBus = bus;
     }
 
     public int round() {
@@ -35,7 +41,8 @@ public class Combat {
     }
 
     public void restoreRound(int newRound) {
-        if (newRound < 1) return;
+        if (newRound < 1)
+            return;
         this.round = newRound;
     }
 
@@ -51,38 +58,58 @@ public class Combat {
         return heroesLost() || heroesWon();
     }
 
-    public List<String> enemyPhase() {
-        List<String> messages = new ArrayList<>();
-        for (Fighter enemy: enemies) {
+    public void enemyPhase() {
+        for (Fighter enemy : enemies) {
             if (!enemy.isAlive()) {
                 continue;
             }
-            if (heroesLost()) break;
-
-            messages.addAll(enemy.act(this, heroes).execute());
+            if (heroesLost())
+                break;
+            perform(enemy.act(this, heroes));
         }
         round++;
         enemies.forEach(Fighter::tickBuffs);
         heroes.forEach(Fighter::tickBuffs);
         history.clear();
-        return messages;
+        checkEnd();
     }
 
-    public List<String> perform(CombatCommand command) {
-        return history.run(command);
+    private void checkEnd() {
+        if (heroesWon() && !ended) {
+            publish(new GameEvent.CombatEnded(
+                    heroesWon(), heroes.stream().map(Fighter::hp).toList()));
+            ended = true;
+        }
+    }
+
+    public void perform(CombatCommand command) {
+        history.run(command);
+        checkEnd();
     }
 
     public boolean undo() {
         return history.undo();
-    } 
+    }
 
     public int damageOf(Fighter attacker, Fighter target) {
         return formula.damage(attacker.stats().attack(), target.stats().defense());
     }
 
-    public int deal(Fighter target, Damage damage) {
+    public int deal(Fighter attacker, Fighter target, Damage damage) {
         int dealt = pipeline.apply(target, damage);
         target.takeDamage(dealt);
+        boolean isHero = heroes.contains(target);
+        if (dealt <= 0)
+            publish(new GameEvent.DamageDodged(attacker.name(), target.name(), isHero));
+        else
+            publish(new GameEvent.DamageDealt(attacker.name(), target.name(), isHero, dealt, damage.type(),
+                    target.hp(), target.stats().maxHp()));
+        if (!target.isAlive())
+            publish(new GameEvent.FighterDefeated(target.name(), isHero));
         return dealt;
+    }
+
+    public void publish(GameEvent event) {
+        eventBus.publish(event);
     }
 }

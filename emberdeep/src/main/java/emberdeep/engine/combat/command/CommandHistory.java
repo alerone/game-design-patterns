@@ -11,10 +11,9 @@ public class CommandHistory {
 
     private final Deque<CombatCommand> done = new ArrayDeque<>();
 
-    public List<String> run(CombatCommand command) {
-        List<String> messages = command.execute();
+    public void run(CombatCommand command) {
+        command.execute();
         done.push(command);
-        return messages;
     }
 
     public boolean undo() {

@@ -35,7 +35,7 @@ public class Check07H2 {
         Fighter skeleton = session.enemies().get(0);
         Item bomb = session.inventory().items().get(2);
         combat.perform(new Attack(combat, hero, skeleton));
-        combat.perform(new Defend(hero));
+        combat.perform(new Defend(combat, hero));
         combat.perform(new UseItem(session, hero, bomb, skeleton));
         show(skeleton, hero, session);
         for (int i = 0; i < 3; i++) {
@@ -48,7 +48,7 @@ public class Check07H2 {
         show(hero, session);
         combat.undo();
         show(hero, session);
-        combat.perform(new Defend(hero));
+        combat.perform(new Defend(combat, hero));
         combat.enemyPhase();
         System.out.println(combat.undo());
     }

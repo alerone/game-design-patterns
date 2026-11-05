@@ -7,6 +7,6 @@ import java.util.List;
  */
 public interface CombatCommand {
 
-    List<String> execute();
+    void execute();
     void undo();
 }

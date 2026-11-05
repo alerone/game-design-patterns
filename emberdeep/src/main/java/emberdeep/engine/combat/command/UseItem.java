@@ -7,6 +7,7 @@ import emberdeep.engine.character.Fighter;
 import emberdeep.engine.combat.Combat;
 import emberdeep.engine.combat.damage.Damage;
 import emberdeep.engine.combat.damage.DamageType;
+import emberdeep.engine.event.GameEvent;
 import emberdeep.engine.item.Inventory;
 import emberdeep.engine.item.Item;
 import emberdeep.engine.session.GameSession;
@@ -35,7 +36,7 @@ public class UseItem implements CombatCommand {
     }
 
     @Override
-    public List<String> execute() {
+    public void execute() {
         inventoryBefore = session.inventory();
         hpBefore = target.hp();
         shieldBefore = target.shield();
@@ -44,17 +45,12 @@ public class UseItem implements CombatCommand {
 
         List<String> messages = new ArrayList<>();
 
-        String itemUseMessage = user.name() + " usa " + item.name()
-                    + " sobre " + target.name();
-
         switch (item.kind()) {
-            case HEALING -> messages.add(itemUseMessage + ": recupera " 
-                    + target.heal(item.power()) + " de vida.");
-            case BOMB -> messages.add(itemUseMessage + ": inflingiendo " 
-                    + combat.deal(target, new Damage(item.power(), DamageType.FIRE))
-                    + " de daño de FUEGO.");
+            case HEALING -> combat.publish(new GameEvent.ItemUsed(
+                        user.name(), target.name(), item.name(),
+                        target.hp(), target.stats().maxHp()));
+            case BOMB -> combat.deal(user, target, new Damage(item.power(), DamageType.FIRE));
         };
-        return messages;
     }
 
     @Override

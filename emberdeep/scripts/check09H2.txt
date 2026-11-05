@@ -1,0 +1,9 @@
+# Ronda 1: Aria lanza la bomba al Zombi
+3
+3
+3
+# Borin ataca al Esqueleto
+1
+1
+# Cael se cubre
+2

@@ -9,6 +9,7 @@ import emberdeep.engine.character.Hero;
 import emberdeep.engine.combat.Combat;
 import emberdeep.engine.combat.damage.DamageFormula;
 import emberdeep.engine.combat.defense.DamagePipeline;
+import emberdeep.engine.event.EventBus;
 import emberdeep.engine.item.Inventory;
 import emberdeep.engine.item.ItemKind;
 import emberdeep.engine.save.FighterState;
@@ -28,6 +29,7 @@ public class GameSession {
     private final List<Fighter> heroes;
     private final List<Fighter> enemies;
     private final Combat combat;
+    private final EventBus events;
     private Inventory inventory;
     private int floor = 1;
     private int x; 
@@ -40,7 +42,8 @@ public class GameSession {
                 .map(biomeFactory::enemy)
                 .map(Fighter::ofEnemy)
                 .toList();
-        this.combat = new Combat(this.heroes, this.enemies, formula, pipeline);
+        events = new EventBus();
+        this.combat = new Combat(this.heroes, this.enemies, formula, pipeline, events);
 
         this.inventory = new Inventory(List.of())
                 .with(biomeFactory.item(ItemKind.HEALING))

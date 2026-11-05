@@ -28,10 +28,13 @@ import emberdeep.engine.world.biome.CryptBiome;
 import emberdeep.engine.world.map.MapData;
 import emberdeep.engine.world.map.MapParser;
 import emberdeep.engine.world.map.TileTypes;
-import emberdeep.ui.ConsoleUi;
+import emberdeep.ui.ConsoleMenu;
 import emberdeep.ui.input.ConsoleInput;
 import emberdeep.ui.input.InputSource;
 import emberdeep.ui.input.ScriptInput;
+import emberdeep.ui.listener.AchievementTracker;
+import emberdeep.ui.listener.CombatLog;
+import emberdeep.ui.listener.HudListener;
 
 /**
  * Main
@@ -54,7 +57,7 @@ public class Main {
         InputSource input = script == null
             ? new ConsoleInput(new Scanner(System.in), System.out)
             : new ScriptInput(Path.of(script), System.out);
-        ConsoleUi ui = new ConsoleUi(input, System.out, store);
+        ConsoleMenu ui = new ConsoleMenu(input, System.out, store);
         Random random = new Random(config.seed());
 
 
@@ -80,10 +83,14 @@ public class Main {
         GameSession session = new GameSession(1, 0, 0, heroes(), floor.biome(), 
                 floor.enemies(), formula, pipeline);
 
+        session.events().subscribe(new CombatLog(System.out));
+        session.events().subscribe(new HudListener(System.out));
+        session.events().subscribe(new AchievementTracker(session.events()));
+
         ui.run(session);
     }
 
-    public void explore(ConsoleUi ui, Dungeon dungeon, int firstFloor) {
+    public void explore(ConsoleMenu ui, Dungeon dungeon, int firstFloor) {
         TileTypes types = new TileTypes();
         MapParser parser = new MapParser(types);
         int number = firstFloor;
@@ -111,7 +118,7 @@ public class Main {
     }
 
 
-    private DamageFormula chooseFormula(ConsoleUi ui, String[] args, boolean scripted) {
+    private DamageFormula chooseFormula(ConsoleMenu ui, String[] args, boolean scripted) {
         boolean useDefault = scripted 
             || args.length > 1 && args[1].equals("default");
         if (useDefault)

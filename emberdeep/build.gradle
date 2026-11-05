@@ -20,7 +20,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'emberdeep.app.Main'
+    mainClass = 'emberdeep.app.Check09H3'
 }
 
 run {
